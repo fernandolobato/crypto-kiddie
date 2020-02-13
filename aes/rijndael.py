@@ -2,6 +2,12 @@
 from . import galois_field_arithmetic as gf_arithmetic
 from . import constants as constants
 
+def dump(block):
+    for word in block:
+        a = hex(word[0] << 24 | word[1] << 16 | word[2] << 8 | word[3])
+        print(a)
+    print("")
+
 def number_of_rounds(key: bytearray) -> int:
     """
     """
@@ -58,13 +64,17 @@ def sub_bytes(state: []):
         state[i] = sub_word(state[i])
 
 def shift(state: [], n):
+    print(n, list(range(n)))
     for i in range(n):
         cp = state[0][i]
 
-        state[0][i] = state[1][i]
-        state[1][i] = state[2][i]
-        state[2][i] = state[3][i]
-        state[3][i] = cp
+        state[0][i + 1] = state[1][i + 1]
+        state[1][i + 1] = state[2][i + 1]
+        state[2][i + 1] = state[3][i + 1]
+        state[3][i + 1] = cp
+
+    print()
+    dump(state)
 
 def shift_rows(state: []):
     """ Apply row shifting in a block (16 bytes, 128 bits).
@@ -102,15 +112,45 @@ def cipher(state: [], w: []) -> []:
 
     n_rounds = number_of_rounds(w)
     add_round_key(state, w[0 : constants.BYTES_PER_KEY_ROW])
+    
 
     for r in range(1, n_rounds):
         sub_bytes(state)
+        dump(state)
         shift_rows(state)
+        dump(state)
+        return
         mix_columns(state)
         add_round_key(state, w[r * constants.BYTES_PER_KEY_ROW : (r + 1) * constants.BYTES_PER_KEY_ROW])
     
     sub_bytes(state)
     shift_rows(state)
     add_round_key(state, w[n_rounds * constants.BYTES_PER_KEY_ROW : (n_rounds + 1) * constants.BYTES_PER_KEY_ROW])
+
+    return state
+
+def inverse_shift_rows(state: []):
+    pass
+
+def inverse_sub_bytes(state: []):
+    pass
+
+def inverse_mix_columns(state: []):
+    pass
+
+def inverse_cipher(state: [], w: []) -> []:
+    
+    number_of_rounds = number_of_rounds(w)
+    add_round_key(state, w[0 : constants.BYTES_PER_KEY_ROW])
+
+    for r in range(number_of_rounds - 1, 0, -1):
+        inverse_shift_rows(state)
+        inverse_sub_bytes(state)
+        add_round_key(state, w[r * constants.BYTES_PER_KEY_ROW, (r + 1) * (constants.BYTES_PER_KEY_ROW)])
+        inverse_mix_columns(state)
+    
+    inverse_shift_rows(state)
+    inverse_sub_bytes(state)
+    add_round_key(state, w[0, constants.BYTES_PER_KEY_ROW])
 
     return state

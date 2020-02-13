@@ -1,4 +1,4 @@
-# NOT SAFE, DONT USE.
+# NOT SAFE, DON'T USE.
 
 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf
 

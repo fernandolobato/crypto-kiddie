@@ -80,5 +80,5 @@ def encrypt_file(input_file_path: str,  output_file_path: str, key: bytearray, i
         out_file.close()
 
 
-def decrypt_file():
-    pass
+def decrypt_file(input_file_path: str, output_file_path: str, key: bytearray):
+    in_blocks = read_data(input_file_path)
